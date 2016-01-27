@@ -25,6 +25,9 @@ SWEP.Primary.Automatic   = true
 SWEP.Primary.DefaultClip = 3
 SWEP.Primary.ClipMax     = 3
 
+-- Same ammo type as the flare-gun.
+SWEP.Primary.Ammo = "AR2AltFire"
+
 SWEP.Kind = WEAPON_EQUIP
 SWEP.CanBuy = {ROLE_TRAITOR} -- only traitors can buy
 SWEP.WeaponID = AMMO_MALFUNCTIONGUN
@@ -49,13 +52,6 @@ SWEP.ReloadAnim = ACT_VM_RELOAD_SILENCED
 function SWEP:Deploy()
 	self:SendWeaponAnim(ACT_VM_DRAW_SILENCED)
 	return true
-end
-
--- We were bought as special equipment, and we have an extra to give
-function SWEP:WasBought(buyer)
-	if IsValid(buyer) then -- probably already self.Owner
-		buyer:GiveAmmo(3, "Pistol")
-	end
 end
 
 function SWEP:PrimaryAttack()
