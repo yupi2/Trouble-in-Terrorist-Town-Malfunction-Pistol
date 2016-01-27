@@ -37,10 +37,10 @@ SWEP.ViewModelFOV  = 54
 SWEP.ViewModel  = "models/weapons/cstrike/c_pist_fiveseven.mdl"
 SWEP.WorldModel = "models/weapons/w_pist_fiveseven.mdl"
 
-SWEP.Primary.Sound = Sound( "weapons/usp/usp1.wav" )
+SWEP.Primary.Sound = Sound("weapons/usp/usp1.wav")
 SWEP.Primary.SoundLevel = 50
 
-SWEP.IronSightsPos = Vector( -5.91, -4, 2.84 )
+SWEP.IronSightsPos = Vector(-5.91, -4, 2.84)
 SWEP.IronSightsAng = Vector(-0.5, 0, 0)
 
 SWEP.PrimaryAnim = ACT_VM_PRIMARYATTACK_SILENCED
@@ -54,31 +54,31 @@ end
 -- We were bought as special equipment, and we have an extra to give
 function SWEP:WasBought(buyer)
 	if IsValid(buyer) then -- probably already self.Owner
-		buyer:GiveAmmo( 3, "Pistol" )
+		buyer:GiveAmmo(3, "Pistol")
 	end
 end
 
 function SWEP:PrimaryAttack()
-	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
 	if not self:CanPrimaryAttack() then return end
 
-	self:EmitSound( self.Primary.Sound )
+	self:EmitSound(self.Primary.Sound)
 
-	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+	self:SendWeaponAnim(ACT_VM_PRIMARYATTACK)
 
 	self:ShootMalfunctionBullet()
 
-	self:TakePrimaryAmmo( 1 )
+	self:TakePrimaryAmmo(1)
 
 	if IsValid(self.Owner) then
-		self.Owner:SetAnimation( PLAYER_ATTACK1 )
+		self.Owner:SetAnimation(PLAYER_ATTACK1)
 
-		self.Owner:ViewPunch( Angle( math.Rand(-0.2, -0.1) * self.Primary.Recoil, math.Rand(-0.1, 0.1) * self.Primary.Recoil, 0 ) )
+		self.Owner:ViewPunch(Angle( math.Rand(-0.2, -0.1) * self.Primary.Recoil, math.Rand(-0.1, 0.1) * self.Primary.Recoil, 0 ))
 	end
 
 	if CLIENT or game.SinglePlayer() then
-		self:SetNetworkedFloat( "LastShootTime", CurTime() )
+		self:SetNetworkedFloat("LastShootTime", CurTime())
 	end
 end
 
@@ -95,7 +95,7 @@ function SWEP:ShootMalfunctionBullet()
 	bullet.TracerName = self.Tracer
 	bullet.Callback   = ForceTargetToShoot
 
-	self.Owner:FireBullets( bullet )
+	self.Owner:FireBullets(bullet)
 end
 
 function ForceTargetToShoot(ply, path, dmginfo)
@@ -164,9 +164,9 @@ function ForceTargetToShoot(ply, path, dmginfo)
 	end
 end
 
-hook.Add( "EntityTakeDamage", "PreventsWrongDamageLogs", function ( target, dmg )
+hook.Add("EntityTakeDamage", "PreventsWrongDamageLogs", function(target, dmg)
 	local influencer = dmg:GetAttacker().malfunctionInfluencer
 	if IsValid(influencer) then
 		dmg:SetAttacker(influencer)
 	end
-end )
+end)
