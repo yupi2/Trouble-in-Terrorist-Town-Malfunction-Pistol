@@ -117,9 +117,10 @@ function ForceTargetToShoot(ply, path, dmginfo)
 				local class = weapon:GetClass()
 
 				if weapon.Primary.ClipSize > 0 then
-					local slot = wswep.Slot
+					local kind = WEPS.TypeForWeapon(class)
 					-- Filter out grenades & magNEATo-stick & holster
-					if (slot ~= 3) and (slot ~= 4) and (slot ~= 5) then
+					if (kind ~= WEAPON_NONE) and (kind ~= WEAPON_UNARMED) and
+							(kind ~= WEAPON_NADE) and (kind ~= WEAPON_CARRY) then
 						table.insert(preferredWeapons, class)
 					end
 				end
