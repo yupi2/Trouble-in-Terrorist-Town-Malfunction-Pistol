@@ -25,12 +25,9 @@ SWEP.Primary.Automatic   = true
 SWEP.Primary.DefaultClip = 3
 SWEP.Primary.ClipMax     = 3
 
--- Same ammo type as the flare-gun.
-SWEP.Primary.Ammo = "AR2AltFire"
-
 SWEP.Kind = WEAPON_EQUIP
 SWEP.CanBuy = {ROLE_TRAITOR} -- only traitors can buy
-SWEP.WeaponID = AMMO_MALFUNCTIONGUN
+SWEP.LimitedStock = true -- only buyable once
 
 SWEP.IsSilent = true
 
