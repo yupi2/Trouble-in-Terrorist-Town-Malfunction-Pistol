@@ -113,7 +113,7 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			local weapons = ent:GetWeapons()
 			local preferredWeapons = {}
 
-			for _, weapon in ipairs(weapons) do
+			for _, weapon in pairs(weapons) do
 				local class = weapon:GetClass()
 
 				if weapon.Primary.ClipSize > 0 then
