@@ -54,8 +54,7 @@ end
 function SWEP:PrimaryAttack()
 	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
-	-- disallow if prep or post round
-	if not GAMEMODE:AllowPVP() then return end
+	if GetRoundState() ~= ROUND_ACTIVE then return end
 
 	if not self:CanPrimaryAttack() then return end
 
@@ -113,7 +112,7 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			local weapons = ent:GetWeapons()
 			local preferredWeapons = {}
 
-			for weapon in weapons do
+			for _, weapon in ipairs(weapons) do
 				local class = weapon:GetClass()
 				local wswep = util.WeaponForClass(class)
 
@@ -155,9 +154,11 @@ function ForceTargetToShoot(ply, path, dmginfo)
 	end
 end
 
-hook.Add("EntityTakeDamage", "PreventsWrongDamageLogs", function(target, dmg)
+-- HOOK_HIGH can be used if ULib is present. Otherwise it's nil which is fine.
+-- This is done so other hooks don't receive the wrong attacker.
+hook.Add("EntityTakeDamage", "SetMalfunctionAttacker", function(target, dmg)
 	local influencer = dmg:GetAttacker().malfunctionInfluencer
 	if IsValid(influencer) then
 		dmg:SetAttacker(influencer)
 	end
-end)
+end, HOOK_HIGH)
