@@ -80,10 +80,11 @@ end
 function SWEP:ShootMalfunctionBullet()
 	local cone = self.Primary.Cone
 	local bullet = {}
+
 	bullet.Num        = 1
 	bullet.Src        = self.Owner:GetShootPos()
 	bullet.Dir        = self.Owner:GetAimVector()
-	bullet.Spread     = Vector( cone, cone, 0 )
+	bullet.Spread     = Vector(cone, cone, 0)
 	bullet.Tracer     = 1
 	bullet.Force      = 2
 	bullet.Damage     = self.Primary.Damage
@@ -108,17 +109,16 @@ function ForceTargetToShoot(ply, path, dmginfo)
 		local repeats
 		local clipsize = ent:GetActiveWeapon().Primary.ClipSize
 
-		if clipsize < 0 then
+		if clipsize < 1 then
 			local weapons = ent:GetWeapons()
 			local preferredWeapons = {}
 
 			for _, weapon in ipairs(weapons) do
 				local class = weapon:GetClass()
-				local wswep = util.WeaponForClass(class)
 
-				-- Filter out grenades & magNEATo-stick & holster
-				if wswep then
+				if weapon.Primary.ClipSize > 0 then
 					local slot = wswep.Slot
+					-- Filter out grenades & magNEATo-stick & holster
 					if (slot ~= 3) and (slot ~= 4) and (slot ~= 5) then
 						table.insert(preferredWeapons, class)
 					end
