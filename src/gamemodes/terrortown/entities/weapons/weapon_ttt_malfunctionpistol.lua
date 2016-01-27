@@ -116,29 +116,33 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			return
 		end
 
-		local repeats = 1
-		if ent:GetActiveWeapon().Primary.ClipSize < 0 then
+		local repeats
+		local clipsize = ent:GetActiveWeapon().Primary.ClipSize
+
+		if clipsize < 0 then
 			local weapons = ent:GetWeapons()
-			local preferedWeapons =  {}
-			for i=4,#weapons do
-				if weapons[i] then
+			local preferredWeapons = {}
+
+			for i = 4, #weapons do
+				if IsValid(weapons[i]) then
 					if weapons[i]:GetClass() ~= "weapon_ttt_confgrenade" and weapons[i]:GetClass() ~= "weapon_ttt_smokegrenade" and weapons[i]:GetClass() ~= "weapon_zm_molotov" then
-						table.insert(preferedWeapons,i)
+						table.insert(preferredWeapons, i)
 					end
 				end
 			end
 
-			if #preferedWeapons > 0 then
-				ent:SelectWeapon(weapons[preferedWeapons[math.random(1, #preferedWeapons)]]:GetClass())
-
-				local clipsize = ent:GetActiveWeapon().Primary.ClipSize
-				repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
+			if #preferredWeapons > 0 then
+				ent:SelectWeapon(weapons[table.Random(preferredWeapons)]:GetClass())
+				-- Selected a new weapon so we need to get the new ClipSize.
+				clipsize = ent:GetActiveWeapon().Primary.ClipSize
 			else
 				repeats = 6
 			end
-		else
-			local clipsize = ent:GetActiveWeapon().Primary.ClipSize
-			repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
+		end
+
+		if repeats == nil then
+			local range = clipsize * 0.05
+			repeats = (clipsize / 2) + math.random(-range, range)
 		end
 
 		ent.malfunctionInfluencer = ply
