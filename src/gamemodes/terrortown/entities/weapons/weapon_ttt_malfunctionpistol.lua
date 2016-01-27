@@ -57,6 +57,9 @@ end
 function SWEP:PrimaryAttack()
 	self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
+	-- disallow if prep or post round
+	if not GAMEMODE:AllowPVP() then return end
+
 	if not self:CanPrimaryAttack() then return end
 
 	self:EmitSound(self.Primary.Sound)
@@ -105,12 +108,7 @@ function ForceTargetToShoot(ply, path, dmginfo)
 		return
 	end
 
-	if SERVER then
-		-- disallow if prep or post round
-		if (not ent:IsPlayer()) or (not GAMEMODE:AllowPVP()) then
-			return
-		end
-
+	if SERVER and ent:IsPlayer() then
 		local repeats
 		local clipsize = ent:GetActiveWeapon().Primary.ClipSize
 
@@ -148,13 +146,13 @@ function ForceTargetToShoot(ply, path, dmginfo)
 		end
 
 		ent.malfunctionInfluencer = ply
-		timer.Create("influenceDisable", ent:GetActiveWeapon().Primary.Delay*repeats+0.1, 1,
-		function()
+		local delay = ent:GetActiveWeapon().Primary.Delay
+
+		timer.Create("influenceDisable", (delay * repeats) + 0.1, 1, function()
 			ent.malfunctionInfluencer = nil
 		end)
 
-		timer.Create("burstFire", ent:GetActiveWeapon().Primary.Delay, repeats,
-		function()
+		timer.Create("burstFire", delay, repeats, function()
 			ent:GetActiveWeapon():PrimaryAttack()
 		end)
 	end
