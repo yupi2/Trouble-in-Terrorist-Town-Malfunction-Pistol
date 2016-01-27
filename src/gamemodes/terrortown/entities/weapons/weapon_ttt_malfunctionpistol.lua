@@ -1,4 +1,3 @@
-
 AddCSLuaFile()
 
 SWEP.HoldType = "pistol"
@@ -75,7 +74,7 @@ function SWEP:PrimaryAttack()
 	if IsValid(self.Owner) then
 		self.Owner:SetAnimation( PLAYER_ATTACK1 )
 
-		self.Owner:ViewPunch( Angle( math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, 0 ) )
+		self.Owner:ViewPunch( Angle( math.Rand(-0.2, -0.1) * self.Primary.Recoil, math.Rand(-0.1, 0.1) * self.Primary.Recoil, 0 ) )
 	end
 
 	if CLIENT or game.SinglePlayer() then
@@ -123,19 +122,26 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			local weapons = ent:GetWeapons()
 			local preferredWeapons = {}
 
-			for i = 4, #weapons do
-				if IsValid(weapons[i]) then
-					if weapons[i]:GetClass() ~= "weapon_ttt_confgrenade" and weapons[i]:GetClass() ~= "weapon_ttt_smokegrenade" and weapons[i]:GetClass() ~= "weapon_zm_molotov" then
-						table.insert(preferredWeapons, i)
+			for weapon in weapons do
+				local class = weapon:GetClass()
+				local wswep = util.WeaponForClass(class)
+
+				-- Filter out grenades & magNEATo-stick & holster
+				if wswep then
+					local slot = wswep.Slot
+					if (slot ~= 3) and (slot ~= 4) and (slot ~= 5) then
+						table.insert(preferredWeapons, class)
 					end
 				end
 			end
 
 			if #preferredWeapons > 0 then
-				ent:SelectWeapon(weapons[table.Random(preferredWeapons)]:GetClass())
+				ent:SelectWeapon(table.Random(preferredWeapons))
 				-- Selected a new weapon so we need to get the new ClipSize.
 				clipsize = ent:GetActiveWeapon().Primary.ClipSize
 			else
+				-- Pull out the crowbar.
+				ent:SelectWeapon("weapon_zm_improvised")
 				repeats = 6
 			end
 		end
