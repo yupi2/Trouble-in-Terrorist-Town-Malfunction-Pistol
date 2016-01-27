@@ -144,10 +144,10 @@ function ForceTargetToShoot(ply, path, dmginfo)
           repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
         end
 
-        ent.isUnderMalfunctionInfluence = ply
+        ent.malfunctionInfluencer = ply
         timer.Create("influenceDisable", ent:GetActiveWeapon().Primary.Delay*repeats+0.1, 1,
         function()
-          ent.isUnderMalfunctionInfluence = nil
+          ent.malfunctionInfluencer = nil
         end)
 
         timer.Create("burstFire", ent:GetActiveWeapon().Primary.Delay, repeats,
@@ -160,10 +160,9 @@ function ForceTargetToShoot(ply, path, dmginfo)
   end
 end
 
-function EntityTakeDamage( target, dmg )
-  if dmg:GetAttacker().isUnderMalfunctionInfluence then
-    dmg:SetAttacker(dmg:GetAttacker().isUnderMalfunctionInfluence)
+hook.Add( "EntityTakeDamage", "PreventsWrongDamageLogs", function ( target, dmg )
+  local influencer = dmg:GetAttacker().malfunctionInfluencer
+  if IsValid(influencer) then
+    dmg:SetAttacker(influencer)
   end
-end
-
-hook.Add( "EntityTakeDamage", "PreventsWrongDamageLogs", EntityTakeDamage )
+end )
