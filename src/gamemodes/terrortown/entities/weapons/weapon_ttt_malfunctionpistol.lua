@@ -78,7 +78,7 @@ function SWEP:PrimaryAttack()
 		self.Owner:ViewPunch( Angle( math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, 0 ) )
 	end
 
-	if ( (game.SinglePlayer() && SERVER) || CLIENT ) then
+	if CLIENT or game.SinglePlayer() then
 		self:SetNetworkedFloat( "LastShootTime", CurTime() )
 	end
 end
@@ -111,51 +111,46 @@ function ForceTargetToShoot(ply, path, dmginfo)
 	end
 
 	if SERVER then
-
-		local dur = ent:IsPlayer() and 5 or 10
-
 		-- disallow if prep or post round
-		if ent:IsPlayer() and (not GAMEMODE:AllowPVP()) then return end
-
-		if ent:IsPlayer() then
+		if (not ent:IsPlayer()) or (not GAMEMODE:AllowPVP()) then
+			return
+		end
 
 		local repeats = 1
-			if ent:GetActiveWeapon().Primary.ClipSize < 0 then
-				local weapons = ent:GetWeapons()
-				local preferedWeapons =  {}
-				for i=4,#weapons do
-					if weapons[i] then
-						if weapons[i]:GetClass() ~= "weapon_ttt_confgrenade" and weapons[i]:GetClass() ~= "weapon_ttt_smokegrenade" and weapons[i]:GetClass() ~= "weapon_zm_molotov" then
-							table.insert(preferedWeapons,i)
-						end
+		if ent:GetActiveWeapon().Primary.ClipSize < 0 then
+			local weapons = ent:GetWeapons()
+			local preferedWeapons =  {}
+			for i=4,#weapons do
+				if weapons[i] then
+					if weapons[i]:GetClass() ~= "weapon_ttt_confgrenade" and weapons[i]:GetClass() ~= "weapon_ttt_smokegrenade" and weapons[i]:GetClass() ~= "weapon_zm_molotov" then
+						table.insert(preferedWeapons,i)
 					end
 				end
-
-				if #preferedWeapons > 0 then
-					ent:SelectWeapon(weapons[preferedWeapons[math.random(1, #preferedWeapons)]]:GetClass())
-
-					local clipsize = ent:GetActiveWeapon().Primary.ClipSize
-					repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
-				else
-					repeats = 6
-				end
-			else
-				local clipsize = ent:GetActiveWeapon().Primary.ClipSize
-				repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
 			end
 
-			ent.malfunctionInfluencer = ply
-			timer.Create("influenceDisable", ent:GetActiveWeapon().Primary.Delay*repeats+0.1, 1,
-			function()
-				ent.malfunctionInfluencer = nil
-			end)
+			if #preferedWeapons > 0 then
+				ent:SelectWeapon(weapons[preferedWeapons[math.random(1, #preferedWeapons)]]:GetClass())
 
-			timer.Create("burstFire", ent:GetActiveWeapon().Primary.Delay, repeats,
-			function()
-				ent:GetActiveWeapon():PrimaryAttack()
-			end)
-
+				local clipsize = ent:GetActiveWeapon().Primary.ClipSize
+				repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
+			else
+				repeats = 6
+			end
+		else
+			local clipsize = ent:GetActiveWeapon().Primary.ClipSize
+			repeats = (clipsize/2)+math.random(-clipsize*0.05,clipsize*0.05)
 		end
+
+		ent.malfunctionInfluencer = ply
+		timer.Create("influenceDisable", ent:GetActiveWeapon().Primary.Delay*repeats+0.1, 1,
+		function()
+			ent.malfunctionInfluencer = nil
+		end)
+
+		timer.Create("burstFire", ent:GetActiveWeapon().Primary.Delay, repeats,
+		function()
+			ent:GetActiveWeapon():PrimaryAttack()
+		end)
 	end
 end
 
