@@ -164,4 +164,11 @@ if SERVER then
 			dmg:SetAttacker(influencer)
 		end
 	end, HOOK_HIGH)
+
+	hook.Add("PlayerSwitchWeapon", "PreventSwitchDuringMalfunction", function(plr, old, new)
+		local influencer = plr.malfunctionInfluencer
+		if IsValid(influencer) then
+			return true -- Prevents weapon switch.
+		end
+	end)
 end
