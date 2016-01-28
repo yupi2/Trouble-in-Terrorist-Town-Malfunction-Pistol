@@ -94,23 +94,23 @@ function SWEP:ShootMalfunctionBullet()
 	self.Owner:FireBullets(bullet)
 end
 
-function ForceTargetToShoot(ply, path, dmginfo)
-	local ent = path.Entity
-	if not IsValid(ent) then return end
+function ForceTargetToShoot(plr, path, dmg)
+	local tgt = path.Entity
+	if not IsValid(tgt) then return end
 
 	if CLIENT and IsFirstTimePredicted() then
-		if ent:GetClass() == "prop_ragdoll" then
-			ScorchUnderRagdoll(ent)
+		if tgt:GetClass() == "prop_ragdoll" then
+			ScorchUnderRagdoll(tgt)
 		end
 		return
 	end
 
-	if SERVER and ent:IsPlayer() then
+	if SERVER and tgt:IsPlayer() then
 		local repeats
-		local clipsize = ent:GetActiveWeapon().Primary.ClipSize
+		local clipsize = tgt:GetActiveWeapon().Primary.ClipSize
 
 		if clipsize < 1 then
-			local weapons = ent:GetWeapons()
+			local weapons = tgt:GetWeapons()
 			local preferredWeapons = {}
 
 			for _, weapon in pairs(weapons) do
@@ -127,12 +127,12 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			end
 
 			if #preferredWeapons > 0 then
-				ent:SelectWeapon(table.Random(preferredWeapons))
+				tgt:SelectWeapon(table.Random(preferredWeapons))
 				-- Selected a new weapon so we need to get the new ClipSize.
-				clipsize = ent:GetActiveWeapon().Primary.ClipSize
+				clipsize = tgt:GetActiveWeapon().Primary.ClipSize
 			else
 				-- Pull out the crowbar.
-				ent:SelectWeapon("weapon_zm_improvised")
+				tgt:SelectWeapon("weapon_zm_improvised")
 				repeats = 6
 			end
 		end
@@ -142,15 +142,15 @@ function ForceTargetToShoot(ply, path, dmginfo)
 			repeats = (clipsize / 2) + math.random(-range, range)
 		end
 
-		ent.malfunctionInfluencer = ply
-		local delay = ent:GetActiveWeapon().Primary.Delay
+		tgt.malfunctionInfluencer = plr
+		local delay = tgt:GetActiveWeapon().Primary.Delay
 
 		timer.Create("influenceDisable", (delay * repeats) + 0.1, 1, function()
-			ent.malfunctionInfluencer = nil
+			tgt.malfunctionInfluencer = nil
 		end)
 
 		timer.Create("burstFire", delay, repeats, function()
-			ent:GetActiveWeapon():PrimaryAttack()
+			tgt:GetActiveWeapon():PrimaryAttack()
 		end)
 	end
 end
@@ -158,14 +158,14 @@ end
 if SERVER then
 	-- HOOK_HIGH can be used if ULib is present. Otherwise it's nil which is fine.
 	-- This is done so other hooks don't receive the wrong attacker.
-	hook.Add("EntityTakeDamage", "SetMalfunctionAttacker", function(target, dmg)
+	hook.Add("EntityTakeDamage", "SetMalfunctionAttacker", function(tgt, dmg)
 		local influencer = dmg:GetAttacker().malfunctionInfluencer
 		if IsValid(influencer) then
 			dmg:SetAttacker(influencer)
 		end
 	end, HOOK_HIGH)
 
-	hook.Add("PlayerSwitchWeapon", "PreventSwitchDuringMalfunction", function(plr, old, new)
+	hook.Add("PlayerSwitchWeapon", "PreventSwitchDuringMalfunction", function(plr)
 		local influencer = plr.malfunctionInfluencer
 		if IsValid(influencer) then
 			return true -- Prevents weapon switch.
