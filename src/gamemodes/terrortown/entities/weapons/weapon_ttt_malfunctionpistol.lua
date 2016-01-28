@@ -155,11 +155,13 @@ function ForceTargetToShoot(ply, path, dmginfo)
 	end
 end
 
--- HOOK_HIGH can be used if ULib is present. Otherwise it's nil which is fine.
--- This is done so other hooks don't receive the wrong attacker.
-hook.Add("EntityTakeDamage", "SetMalfunctionAttacker", function(target, dmg)
-	local influencer = dmg:GetAttacker().malfunctionInfluencer
-	if IsValid(influencer) then
-		dmg:SetAttacker(influencer)
-	end
-end, HOOK_HIGH)
+if SERVER then
+	-- HOOK_HIGH can be used if ULib is present. Otherwise it's nil which is fine.
+	-- This is done so other hooks don't receive the wrong attacker.
+	hook.Add("EntityTakeDamage", "SetMalfunctionAttacker", function(target, dmg)
+		local influencer = dmg:GetAttacker().malfunctionInfluencer
+		if IsValid(influencer) then
+			dmg:SetAttacker(influencer)
+		end
+	end, HOOK_HIGH)
+end
